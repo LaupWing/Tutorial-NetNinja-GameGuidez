@@ -23,12 +23,18 @@ const setupUi = (user)=>{
   const loggedOutLinks = document.querySelectorAll('.logged-out')
   const accountDetails = document.querySelector('.account-details')
   if(user){
-    const html =  `
-      <div>Logged in as ${user.email}</div>
-    `
-    accountDetails.innerHTML = html
-    loggedInLinks.forEach(link=>link.style.display = 'block')
-    loggedOutLinks.forEach(link=>link.style.display = 'none')
+    db.collection('users')
+      .doc(user.uid)
+      .get()
+      .then((doc)=>{
+        const html =  `
+          <div>Logged in as ${user.email}</div>
+          <div>${doc.data().bio}</div>
+        `
+        accountDetails.innerHTML = html
+        loggedInLinks.forEach(link=>link.style.display = 'block')
+        loggedOutLinks.forEach(link=>link.style.display = 'none')
+      })
   }else{
     accountDetails.innerHtml = ''
     loggedInLinks.forEach(link=>link.style.display = 'none')
@@ -38,11 +44,8 @@ const setupUi = (user)=>{
 
 // setup materialize components
 document.addEventListener('DOMContentLoaded', function() {
-
   var modals = document.querySelectorAll('.modal');
   M.Modal.init(modals);
-
   var items = document.querySelectorAll('.collapsible');
   M.Collapsible.init(items);
-
 });
