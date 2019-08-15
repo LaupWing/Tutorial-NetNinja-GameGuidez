@@ -1,13 +1,44 @@
+
 // Listen for aut states changes
 auth.onAuthStateChanged((user)=>{
+    console.log(user);
     if(user){
-        console.log('user has logged in', user);
+        db.collection('guides').onSnapshot(snapshots=>{
+            setupGuides(snapshots.docs);
+            setupUi(user);
+        })
+        .catch(err=>{
+            console.log(err.message)
+        });
     }else{
+        setupUi(user);
+        setupGuides([]);
         console.log('user has logged out');
     }
 });
 
-const signupForm = document.querySelector('#signup-form')
+
+// Create new guides
+const createForm = document.querySelector('#create-form');
+createForm.addEventListener('submit', (e)=>{
+    e.preventDefault();
+    db.collection('guides')
+        .add({
+            title: createForm['title'].value,
+            content: createForm['content'].value
+        })
+        .then(()=>{
+            const modal = document.querySelector('#modal-create');
+            M.Modal.getInstance(modal).close();
+            createForm.reset();
+        })
+        .catch(err=>{
+            console.log('You have to be logged in', err.message)
+        });;
+});
+
+
+const signupForm = document.querySelector('#signup-form');
 signupForm.addEventListener('submit', (e)=>{
     e.preventDefault();
     
@@ -41,6 +72,7 @@ loginForm.addEventListener('submit', (e)=>{
     const password = loginForm['login-password'].value;
     auth.signInWithEmailAndPassword(email,password)
         .then((cred)=>{
+            console.log(cred.user)
             const modal = document.querySelector('#modal-login');
             M.Modal.getInstance(modal).close();
             loginForm.reset();
