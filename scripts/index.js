@@ -22,7 +22,11 @@ const setupUi = (user)=>{
   const loggedInLinks = document.querySelectorAll('.logged-in')
   const loggedOutLinks = document.querySelectorAll('.logged-out')
   const accountDetails = document.querySelector('.account-details')
+  const adminItems = document.querySelectorAll('.admin')
   if(user){
+    if(user.admin){
+      adminItems.forEach(item=>item.style.display = 'block')
+    }
     db.collection('users')
       .doc(user.uid)
       .get()
@@ -30,6 +34,7 @@ const setupUi = (user)=>{
         const html =  `
           <div>Logged in as ${user.email}</div>
           <div>${doc.data().bio}</div>
+          <div>${user.admin ? 'Admin':''}</div>
         `
         accountDetails.innerHTML = html
         loggedInLinks.forEach(link=>link.style.display = 'block')
@@ -37,6 +42,7 @@ const setupUi = (user)=>{
       })
   }else{
     accountDetails.innerHtml = ''
+    adminItems.forEach(item=>item.style.display = 'none')
     loggedInLinks.forEach(link=>link.style.display = 'none')
     loggedOutLinks.forEach(link=>link.style.display = 'block')
   }
